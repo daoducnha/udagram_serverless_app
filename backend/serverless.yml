@@ -1,12 +1,13 @@
 # TODO: Change the name of the org 
-org: sudkul
-app: serverless-todo-app
 service: serverless-todo-app
 
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
   - serverless-plugin-tracing
+
+package:
+  individually: true
 
 provider:
   name: aws
@@ -27,6 +28,7 @@ provider:
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
     ATTACHMENT_S3_BUCKET: serverless-c4-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+    SLS_DEBUG: src/logs
 
   logs:
     # Enable API Gateway logs
