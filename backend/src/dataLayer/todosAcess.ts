@@ -1,14 +1,7 @@
 import * as AWS from 'aws-sdk'
-import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
-import { createLogger } from '../utils/logger'
 import { TodoItem } from '../models/TodoItem'
-import { TodoUpdate } from '../models/TodoUpdate';
-import { getUserId } from '../lambda/utils'
 
-const XAWS = AWSXRay.captureAWS(AWS)
-
-const logger = createLogger('TodosAccess')
 
 // TODO: Implement the dataLayer logic
 export class TodosAccess {
@@ -33,9 +26,9 @@ export class TodosAccess {
         
         const result = await this.docClient.query({
             TableName: this.todosTable,
-            KeyConditionExpression: 'name = :name',
+            KeyConditionExpression: 'userId = :userId',
             ExpressionAttributeValues: {
-                ':name': userId
+                ':userId': userId
             }
         }).promise()
 

@@ -11,7 +11,9 @@ import { getUserId } from '../utils';
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     // Write your code here
-    const userId = getUserId(event)
+    // const userId = getUserId(event)
+    console.log(event)
+    const userId = 'user1'
     const todos = await getTodosForUser(userId)
 
     return {
