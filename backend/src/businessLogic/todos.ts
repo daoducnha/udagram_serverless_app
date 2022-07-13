@@ -30,19 +30,19 @@ export async function createTodo(createTodoRequest: CreateTodoRequest, userId: s
     })
 }
 
-export async function updateTodo(updateTodoRequest: UpdateTodoRequest, userId: string) {
-    const todoId = uuid.v4()
+export async function updateTodo(updateTodoRequest: UpdateTodoRequest, userId: string, todoId: string) {
     const createdAt = new Date().toISOString()
 
     // TODO need to update
-    return await todosAcess.updateTodo({
-        todoId: todoId,
-        userId: userId,
-        createdAt: createdAt,
-        name: updateTodoRequest.name,
-        dueDate: updateTodoRequest.dueDate,
-        done: updateTodoRequest.done,
-    })
+    return await todosAcess.updateTodo(
+        {
+            name: updateTodoRequest.name,
+            dueDate: updateTodoRequest.dueDate,
+            done: updateTodoRequest.done
+        }, 
+        userId, 
+        todoId
+    )
 }
 
 export async function deleteTodo(todoId: string, userId: string) {

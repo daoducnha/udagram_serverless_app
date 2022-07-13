@@ -108,6 +108,12 @@ functions:
           request:
             schemas:
               application/json: ${file(models/update-todo-model.json)}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements

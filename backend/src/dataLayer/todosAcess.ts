@@ -1,6 +1,7 @@
 import * as AWS from 'aws-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { TodoItem } from '../models/TodoItem'
+import { TodoUpdate } from '../models/TodoUpdate'
 
 
 // TODO: Implement the dataLayer logic
@@ -22,8 +23,8 @@ export class TodosAccess {
         return items as TodoItem[]
     }
 
-    async getTodosForUser(userId: string): Promise<TodoItem[]>  {
-        
+    async getTodosForUser(userId: string): Promise<TodoItem[]> {
+
         const result = await this.docClient.query({
             TableName: this.todosTable,
             KeyConditionExpression: 'userId = :userId',
@@ -45,28 +46,7 @@ export class TodosAccess {
         return todoItem
     }
 
-    async updateTodo(todoItem: TodoItem): Promise<TodoItem> {
-        const result = await this.docClient.query({
-            TableName: this.todosTable,
-            KeyConditionExpression: 'todoId = :todoId',
-            ExpressionAttributeValues: {
-                ':todoId': todoItem.todoId
-            }
-        }).promise()
-
-        if(result.Count === 0) {
-            throw new Error(`Todo item not found with id ${todoItem.todoId}`)
-        }
-
-        await this.docClient.put({
-            TableName: this.todosTable,
-            Item: todoItem
-        }).promise()
-
-        return todoItem;
-    }
-
-   async deleteTodo(todoId: string, userId: string) {
+    async updateTodo(todoItem: TodoUpdate, userId: string, todoId: string) {
         const result = await this.docClient.query({
             TableName: this.todosTable,
             KeyConditionExpression: 'userId = :userId AND todoId = :todoId',
@@ -75,7 +55,39 @@ export class TodosAccess {
                 ':todoId': todoId
             }
         }).promise()
-        if(result.Count === 0) {
+
+        if (result.Count === 0) {
+            throw new Error(`Todo item not found with id ${todoId}`)
+        }
+
+        await this.docClient.update({
+            TableName: this.todosTable,
+            Key: {
+                userId: userId,
+                todoId: todoId
+            },
+            UpdateExpression: 'SET #username = :username, dueDate = :dueDate, done = :done',
+            ExpressionAttributeNames: {
+                '#username': 'name'
+            },
+            ExpressionAttributeValues: {
+                ':username': todoItem.name,
+                ':dueDate': todoItem.dueDate,
+                ':done': todoItem.done
+            }
+        }).promise()
+    }
+
+    async deleteTodo(todoId: string, userId: string) {
+        const result = await this.docClient.query({
+            TableName: this.todosTable,
+            KeyConditionExpression: 'userId = :userId AND todoId = :todoId',
+            ExpressionAttributeValues: {
+                ':userId': userId,
+                ':todoId': todoId
+            }
+        }).promise()
+        if (result.Count === 0) {
             throw new Error(`Todo item not found with id ${todoId}`)
         }
 
@@ -84,7 +96,29 @@ export class TodosAccess {
             Key: {
                 userId: userId,
                 todoId: todoId
-              }
+            }
         }).promise()
-   }
+    }
+
+    buildUpdateExpression(todoItem: TodoUpdate): string {
+        const updateExpression = Object.keys(todoItem).filter(
+            key => todoItem[key] != null
+        )
+            .map(key => `${key} = :${key}`)
+            .join(', ')
+        console.log('updateExpression: ', updateExpression)
+        return `set ${updateExpression}`
+    }
+
+    buildExpressionAttributeValues(todoItem: TodoUpdate): object {
+        const expressionAttributeValues = {}
+
+        Object.keys(todoItem).filter(
+            key => todoItem[key] != null
+        )
+            .forEach(key => expressionAttributeValues[`:${key}`] = todoItem[key])
+
+        console.log('expressionAttributeValues: ', expressionAttributeValues)
+        return expressionAttributeValues
+    }
 }
