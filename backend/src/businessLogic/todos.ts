@@ -4,8 +4,7 @@ import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import * as uuid from 'uuid'
 
-// TODO: Implement businessLogic
-
+import { createAttachmentUrl } from '../helpers/attachmentUtils'
 const todosAcess = new TodosAccess()
 
 export async function getAllTodoItems() {
@@ -39,6 +38,21 @@ export async function updateTodo(updateTodoRequest: UpdateTodoRequest, userId: s
             name: updateTodoRequest.name,
             dueDate: updateTodoRequest.dueDate,
             done: updateTodoRequest.done
+        }, 
+        userId, 
+        todoId
+    )
+}
+
+export async function updatePresignedUrlForTodoItem(userId: string, todoId: string, attachmentId: string) {
+    const todoItem = await todosAcess.getTodoByIdForUser(userId, todoId)
+    const attachmentUrl = await createAttachmentUrl(attachmentId)
+    return await todosAcess.updatePresignedUrlForTodoItem(
+        {
+            name: todoItem.name,
+            dueDate: todoItem.dueDate,
+            done: todoItem.done,
+            attachmentUrl: attachmentUrl
         }, 
         userId, 
         todoId
