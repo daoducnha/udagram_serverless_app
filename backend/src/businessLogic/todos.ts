@@ -7,10 +7,6 @@ import * as uuid from 'uuid'
 import { createAttachmentUrl } from '../helpers/attachmentUtils'
 const todosAcess = new TodosAccess()
 
-export async function getAllTodoItems() {
-    return await todosAcess.getAllTodos()
-}
-
 export async function getTodosForUser(userId: string) {
     return await todosAcess.getTodosForUser(userId)
 }
