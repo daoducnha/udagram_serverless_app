@@ -45,6 +45,6 @@ export async function updateTodo(updateTodoRequest: UpdateTodoRequest, userId: s
     })
 }
 
-export async function deleteTodo(todoId: string) {
-    return await todosAcess.deleteTodo(todoId)
+export async function deleteTodo(todoId: string, userId: string) {
+    return await todosAcess.deleteTodo(todoId, userId)
 }

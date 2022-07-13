@@ -36,7 +36,6 @@ export class TodosAccess {
         return items as TodoItem[]
     }
 
-
     async createTodo(todoItem: TodoItem): Promise<TodoItem> {
         await this.docClient.put({
             TableName: this.todosTable,
@@ -67,23 +66,25 @@ export class TodosAccess {
         return todoItem;
     }
 
-   async deleteTodo(todoId: string) {
+   async deleteTodo(todoId: string, userId: string) {
         const result = await this.docClient.query({
             TableName: this.todosTable,
-            KeyConditionExpression: 'todoId = :todoId',
-            ExpressionAttributeNames: {
+            KeyConditionExpression: 'userId = :userId AND todoId = :todoId',
+            ExpressionAttributeValues: {
+                ':userId': userId,
                 ':todoId': todoId
             }
         }).promise()
         if(result.Count === 0) {
             throw new Error(`Todo item not found with id ${todoId}`)
         }
-        const key = {
-            key: todoId
-        }
+
         await this.docClient.delete({
             TableName: this.todosTable,
-            Key: key
+            Key: {
+                userId: userId,
+                todoId: todoId
+              }
         }).promise()
    }
 }
