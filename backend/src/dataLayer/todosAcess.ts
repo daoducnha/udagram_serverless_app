@@ -35,7 +35,7 @@ export class TodosAccess {
         
         const result = await this.docClient.query({
             TableName: this.todosTable,
-            KeyConditionExpression: 'userId = :userId and todoId = :todoId',
+            KeyConditionExpression: 'userId = :userId AND todoId = :todoId',
             ExpressionAttributeValues: {
                 ':userId': userId,
                 ':todoId': todoId
@@ -117,23 +117,15 @@ export class TodosAccess {
     }
 
     async deleteTodo(todoId: string, userId: string) {
-        const currentTodoItem = this.getTodoByIdForUser(userId, todoId)
-        
-        if (currentTodoItem) {
-            throw new Error(`Todo item not found with id ${todoId}`)
-        }
-
         this.logger.info(`Deleting todo item with id ${todoId} for user ${userId}.`)
 
         await this.docClient.delete({
             TableName: this.todosTable,
             Key: {
-                userId: userId,
-                todoId: todoId
+                userId,
+                todoId
             }
         }).promise()
-
-        this.logger.info(`Delete todo item with id ${todoId} for user ${userId} success.`)
     }
 
    
